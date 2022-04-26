@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model QuestionCategory {
+  id          Int        @id
+  name        String
+  description String
+  questions   Question[]
+}
+
+model Question {
+  label              String           @id @db.VarChar(20)
+  content            String
+  questionCategoryId Int
+  options            QuestionOption[]
+  category           QuestionCategory @relation(fields: [questionCategoryId], references: [id])
+}
+
+model QuestionOption {
+  position      Int
+  questionLabel String   @db.VarChar(20)
+  content       String
+  question      Question @relation(fields: [questionLabel], references: [label])
+
+  @@id([questionLabel, position])
+}
+
+model Component {
+  id             Int          @id @default(autoincrement())
+  frabricId      String       @unique
+  deltronId      String?      @unique
+  image          String?
+  brand          String
+  model          String
+  type           String
+  suggestedPrice Int
+  rgb            Boolean?
+  cpu            Cpu?
+  ram            Ram?
+  motherboard    Motherboard?
+  gpu            Gpu?
+  powerSupply    PowerSupply?
+  storage        Storage?
+}
+
+model Cpu {
+  id                     Int       @id
+  componentId            Int       @unique
+  family                 String
+  generation             Int?
+  platform               String
+  specifier              String
+  launchDate             DateTime?
+  baseFrecuency          Float
+  turboFrecuency         Float
+  cores                  Int
+  threads                Int
+  cacheL2                Int?
+  cacheL3                Int
+  tdp                    Int
+  lithography            String
+  socket                 String
+  maxTemperature         Int
+  admitedMemory          String[]
+  maxMemory              Int
+  maxMemorySpeed         Int
+  haveIntegratedGraphics Boolean
+  graphicBaseFrecuency   Float?
+  graphicMaxFrecuency    Float?
+  graphicMaxResolution   String?
+  component              Component @relation(fields: [componentId], references: [id])
+}
+
+model Ram {
+  id          Int       @id
+  componentId Int       @unique
+  type        String
+  voltage     Float
+  frequency   Int
+  capacity    Int
+  format      String
+  casLatency  Int
+  latency     Int
+  component   Component @relation(fields: [componentId], references: [id])
+}
+
+model Motherboard {
+  id                    Int       @id
+  componentId           Int       @unique
+  socket                String
+  chipset               String
+  size                  String
+  supportedMemory       String[]
+  memoryType            String
+  memorySlots           Int
+  memoryChannel         Int
+  networkInterfaceSpeed String
+  powerSupply           String
+  portsATA              Int
+  portsPCIe             Int
+  portsUSB              Int
+  format                String
+  component             Component @relation(fields: [componentId], references: [id])
+}
+
+model Gpu {
+  id                   Int       @id @default(autoincrement())
+  componentId          Int       @unique
+  family               String
+  cores                Int
+  memory               Int
+  frecuency            Float
+  maxResolution        String
+  interface            String
+  power                Int
+  connectorHDMI        Int
+  connectorDisplayPort Int
+  pines                Int
+  component            Component @relation(fields: [componentId], references: [id])
+}
+
+model PowerSupply {
+  id             Int       @id
+  componentId    Int       @unique
+  potency        Int
+  efficiency     String
+  isModular      Boolean
+  inVoltage      Int
+  frequency      Int
+  format         String
+  outVoltage     Int
+  connectorsATX  Int
+  connectorsSATA Int
+  connectorsPCIe Int
+  connectorsEPS  Int
+  component      Component @relation(fields: [componentId], references: [id])
+}
+
+model Storage {
+  id          Int       @id @default(autoincrement())
+  componentId Int       @unique
+  type        String
+  capacity    Int
+  revolutions Int?
+  cache       Int?
+  format      String
+  interface   String
+  haveSink    Boolean
+  speedRead   Int
+  speedWrite  Int
+  component   Component @relation(fields: [componentId], references: [id])
+}

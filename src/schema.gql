@@ -1,0 +1,35 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Query {
+  getQuestion: QuestionModel!
+  getQuestionCategories: [QuestionCategoryModel!]!
+  getQuestionCategory: QuestionCategoryModel!
+  getQuestionOption: QuestionOptionModel!
+  getQuestionOptions: [QuestionOptionModel!]!
+  getQuestions: [QuestionModel!]!
+}
+
+type QuestionCategoryModel {
+  description: String!
+  id: Int!
+  name: String!
+  questions: [QuestionModel!]!
+}
+
+type QuestionModel {
+  category: QuestionCategoryModel!
+  content: String!
+  label: ID!
+  options: [QuestionOptionModel!]!
+  questionCategory: QuestionCategoryModel!
+  questionCategoryId: Int!
+}
+
+type QuestionOptionModel {
+  content: String!
+  position: Int!
+  question: QuestionModel!
+  questionLabel: String!
+}
