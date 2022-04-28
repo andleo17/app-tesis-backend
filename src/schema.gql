@@ -2,13 +2,120 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type ComponentModel {
+  brand: String!
+  deltronId: String
+  frabricId: String!
+  id: ID!
+  image: String
+  model: String!
+  rgb: Boolean!
+  suggestedPrice: Float
+  type: String!
+}
+
+type CpuModel {
+  admitedMemory: [String!]!
+  baseFrecuency: Float!
+  cacheL2: Int
+  cacheL3: Int!
+  component: ComponentModel!
+  componentId: ID!
+  cores: Int!
+  family: String!
+  generation: Float
+  graphicBaseFrecuency: Float
+  graphicMaxFrecuency: Float
+  graphicMaxResolution: String
+  haveIntegratedGraphics: Boolean!
+  launchDate: DateTime
+  lithography: String!
+  maxMemory: Int!
+  maxMemorySpeed: Int!
+  maxTemperature: Int!
+  platform: String!
+  socket: String!
+  specifier: String!
+  tdp: Int!
+  threads: Int!
+  turboFrecuency: Float!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type GpuModel {
+  component: ComponentModel!
+  componentId: ID!
+  connectorDisplayPort: Int!
+  connectorHDMI: Int!
+  cores: Int!
+  family: String!
+  frecuency: Float!
+  interface: String!
+  maxResolution: String!
+  memory: Int!
+  pines: Int!
+  power: Int!
+}
+
+type MotherboardModel {
+  chipset: String!
+  component: ComponentModel!
+  componentId: ID!
+  format: String!
+  memoryChannel: Int!
+  memorySlots: Int!
+  memoryType: String!
+  networkInterfaceSpeed: String!
+  portsATA: Int!
+  portsPCIe: Int!
+  portsUSB: Int!
+  powerSupply: String!
+  size: String!
+  socket: String!
+  supportedMemory: [String!]!
+}
+
+type PowerSuplyModel {
+  component: ComponentModel!
+  componentId: ID!
+  connectorsATX: Int!
+  connectorsEPS: Int!
+  connectorsPCIe: Int!
+  connectorsSATA: Int!
+  efficiency: String!
+  format: String!
+  frequency: Int!
+  inVoltage: Int!
+  isModular: Boolean!
+  outVoltage: Int!
+  potency: Int!
+}
+
 type Query {
+  getComponent: ComponentModel!
+  getComponents: [ComponentModel!]!
+  getCpu(id: Int!): CpuModel!
+  getCpus: [CpuModel!]!
+  getGpu(id: Int!): GpuModel!
+  getGpus: [GpuModel!]!
+  getMotherboard(id: Int!): MotherboardModel!
+  getMotherboards: [MotherboardModel!]!
+  getPowerSupplies: [PowerSuplyModel!]!
+  getPowerSupply(id: Int!): PowerSuplyModel!
   getQuestion: QuestionModel!
   getQuestionCategories: [QuestionCategoryModel!]!
   getQuestionCategory: QuestionCategoryModel!
   getQuestionOption: QuestionOptionModel!
   getQuestionOptions: [QuestionOptionModel!]!
   getQuestions: [QuestionModel!]!
+  getRam(id: Int!): RamModel!
+  getRams: [RamModel!]!
+  getStorage(id: Int!): StorageModel!
+  getStorages: [StorageModel!]!
 }
 
 type QuestionCategoryModel {
@@ -32,4 +139,30 @@ type QuestionOptionModel {
   position: Int!
   question: QuestionModel!
   questionLabel: String!
+}
+
+type RamModel {
+  capacity: Int!
+  casLatency: Int!
+  component: ComponentModel!
+  componentId: ID!
+  format: String!
+  frequency: Int!
+  latency: Int!
+  type: String!
+  voltage: Float!
+}
+
+type StorageModel {
+  cache: Int
+  capacity: Int!
+  component: ComponentModel!
+  componentId: ID!
+  format: String!
+  haveSink: Boolean!
+  interface: String!
+  revolutions: Int
+  speedRead: Int!
+  speedWrite: Int!
+  type: String!
 }
