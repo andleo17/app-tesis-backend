@@ -46,6 +46,11 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+input FormInput {
+  answerPosition: Int!
+  questionLabel: String!
+}
+
 type GpuModel {
   component: ComponentModel!
   componentId: ID!
@@ -77,6 +82,10 @@ type MotherboardModel {
   size: String!
   socket: String!
   supportedMemory: [String!]!
+}
+
+type Mutation {
+  recommendPC(formAnswers: [FormInput!]!): [ComponentModel!]!
 }
 
 type PowerSuplyModel {
