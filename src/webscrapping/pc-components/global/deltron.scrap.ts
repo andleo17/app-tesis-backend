@@ -15,7 +15,7 @@ export enum DeltronComponent {
 
 @Injectable()
 export class DeltronService {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly axios: HttpService) {}
 
   async getComponentList(component: DeltronComponent): Promise<any[]> {
     const componentList = [];
@@ -24,7 +24,7 @@ export class DeltronService {
 
     do {
       const response = await lastValueFrom(
-        this.httpService
+        this.axios
           .get<string>(
             'https://www.deltron.com.pe/modulos/productos/items/ctBuscador/templates/contenedor_web_2016.php',
             {
@@ -52,7 +52,7 @@ export class DeltronService {
 
   private async getComponentManufacturerCode(id: string): Promise<string> {
     const response = await lastValueFrom(
-      this.httpService
+      this.axios
         .get(
           'https://www.deltron.com.pe/modulos/productos/items/producto.php',
           {
