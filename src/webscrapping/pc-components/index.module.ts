@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { PowerSupplyModule } from 'src/pc-components/modules/powerSupply.module';
 import { CpuScrapModule } from './cpu/index.module';
 import { DeltronModule } from './global/deltron.module';
 import { GpuScrapModule } from './gpu/index.module';
 import { MotherboardScrapModule } from './motherboard/index.module';
+import { PowerSupplyScrapModule } from './power-supply/index.module';
 import { RamScrapModule } from './ram/index.module';
+import { StorageScrapModule } from './storage/index.module';
 
 @Module({
   imports: [
@@ -12,8 +13,9 @@ import { RamScrapModule } from './ram/index.module';
     CpuScrapModule,
     GpuScrapModule,
     MotherboardScrapModule,
-    PowerSupplyModule,
+    PowerSupplyScrapModule,
     RamScrapModule,
+    StorageScrapModule,
   ],
 })
 export class PCComponentsScrappingModule {}
