@@ -1,6 +1,7 @@
 export class AMDProcessorModel {
   id: number;
   name: string;
+  url: string;
   model: string;
   generation: number;
   specificator: string;
@@ -20,14 +21,9 @@ export class AMDProcessorModel {
   isUnlocked: boolean;
   lithography: number;
   socket: string;
-  socketCount: string;
   portType: string;
-  thermalSolution: string;
-  thermalSolution2: string;
   tdp: number;
-  maxTdp: string;
   maxTemperature: number;
-  supportedOS: string;
   maxMemory: number;
   memoryType: string;
   memoryChannels: number;
