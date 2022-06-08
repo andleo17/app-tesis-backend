@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import * as cheerio from 'cheerio';
 import { IntelModel } from '../models/intel.model';
+import * as fs from 'fs/promises';
 
 const intelProcessorFamily = [
   43521, // Celeron
@@ -44,6 +45,8 @@ export class IntelService {
         page++;
       } while (next);
     }
+
+    await fs.writeFile('results/cpus/intel.json', JSON.stringify(processors));
     return processors;
   }
 
@@ -73,7 +76,7 @@ export class IntelService {
     $: cheerio.CheerioAPI,
   ): Promise<IntelModel | null> {
     const $el = $(element);
-    const id = $el.attr('data-product-id');
+    const id = Number($el.attr('data-product-id'));
 
     const $processorInfo = $el.find('td');
 
@@ -90,7 +93,7 @@ export class IntelService {
     return {
       id,
       url: processorURL,
-      date: processorDate,
+      launchDate: processorDate,
       ...processorDetails,
     };
   }
@@ -102,12 +105,13 @@ export class IntelService {
 
   private extractProcessorDetail(
     html: string,
-  ): Omit<IntelModel, 'id' | 'url' | 'date'> {
+  ): Omit<IntelModel, 'id' | 'url' | 'launchDate'> {
     const $ = cheerio.load(html);
-    const image = $('.badge-loaded').children('img').attr('src').trim();
+    const image = $('.badge-loaded').children('img').attr('src')?.trim();
     const family = $('span[data-key="ProductGroup"]')
       .text()
-      .match(/(Intel®).+/g)[0]
+      .match(/(Intel®).+/g)
+      ?.at(0)
       .replace('Intel®', '')
       .replace(/(de).+/g, '')
       .trim();
@@ -216,10 +220,10 @@ export class IntelService {
     );
 
     return {
+      model,
       image,
       family,
       platform,
-      model,
       generation,
       lithography,
       cores,

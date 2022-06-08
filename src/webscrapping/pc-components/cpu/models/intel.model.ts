@@ -1,7 +1,7 @@
 export class IntelModel {
-  id: string;
+  id: number;
   url: string;
-  date: Date;
+  launchDate: Date;
   image: string;
   family: string;
   platform: string;
