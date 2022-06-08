@@ -4,13 +4,14 @@ import * as fs from 'fs/promises';
 import { GraphicCardScrap } from '../services/GraphicCard.scrap';
 import { HttpService } from '@nestjs/axios';
 import * as qs from 'qs';
+import { GigabyteGPUModel } from '../models/GigabyteGPU.model';
 
-export class GigabyteGraphicsService extends GraphicCardScrap<any> {
+export class GigabyteGraphicsService extends GraphicCardScrap<GigabyteGPUModel> {
   public constructor(protected readonly axios: HttpService) {
     super(axios);
   }
 
-  public async getGraphicCards(): Promise<any> {
+  public async getGraphicCards(): Promise<GigabyteGPUModel[]> {
     const graphicCards = [];
     let next = true;
     let page = 1;
@@ -49,7 +50,7 @@ export class GigabyteGraphicsService extends GraphicCardScrap<any> {
     return graphicCards;
   }
 
-  protected async readGraphicCards(content: any): Promise<any> {
+  protected async readGraphicCards(content: any) {
     const graphicCardsListRaw = content.Products.ProductList;
     const graphicCardsRaw = await Promise.all(
       graphicCardsListRaw.map((g: any) => this.extractGraphicCardsInfo(g)),
@@ -63,17 +64,25 @@ export class GigabyteGraphicsService extends GraphicCardScrap<any> {
     };
   }
 
-  protected async extractGraphicCardsInfo(json: any) {
+  protected async extractGraphicCardsInfo(
+    json: any,
+  ): Promise<GigabyteGPUModel> {
     const graphicCard = {
       id: json.seq_product,
       model: json.model_name,
+      url: `https://www.gigabyte.com/Graphics-Card/${json.model_name.replace(
+        ' ',
+        '-',
+      )}`,
       publishDate: new Date(json.publish_date),
       name: json.name,
       chipset: json.ComparisonDisplayChipset,
       vendor: json.ComparisonDisplayVender,
-      vram: json.ComparisonDisplayMemory,
+      vram: Number(json.ComparisonDisplayMemory.replace('GB', '').trim()),
       image: 'https:' + json.Images[0].url,
     };
+
+    if (!graphicCard.vram) return null;
 
     if (
       new Date().getFullYear() - graphicCard.publishDate.getFullYear() >= 7 ||
@@ -90,7 +99,7 @@ export class GigabyteGraphicsService extends GraphicCardScrap<any> {
     return { ...graphicCard, ...graphicCardDetail };
   }
 
-  protected async getGraphicCardDetail(url: string): Promise<any> {
+  protected async getGraphicCardDetail(url: string) {
     const { data } = await lastValueFrom(this.axios.get(url));
     return this.extractGraphicCardDetail(data);
   }
@@ -99,28 +108,76 @@ export class GigabyteGraphicsService extends GraphicCardScrap<any> {
     const $ = cheerio.load(html);
 
     const dataRow = $('.data-row');
+    const $getData = (index: number) => dataRow.eq(index).text().trim();
 
-    const frecuency = dataRow.eq(1).text().trim();
-    const cudaCores = dataRow.eq(2).text().trim();
-    const memoryClock = dataRow.eq(3).text().trim();
-    const memoryType = dataRow.eq(5).text().trim();
-    const memoryBus = dataRow.eq(6).text().trim();
-    const memoryBandwidth = dataRow.eq(7).text().trim();
-    const cardBus = dataRow.eq(8).text().trim();
-    const maxResolution = dataRow.eq(9).text().trim();
-    const maxDisplays = dataRow.eq(10).text().trim();
-    const cardSize = dataRow.eq(11).text().trim();
-    const cardForm = dataRow.eq(12).text().trim();
-    const directX = dataRow.eq(13).text().trim();
-    const openGl = dataRow.eq(14).text().trim();
-    const power = dataRow.eq(15).text().trim();
-    const pines = dataRow.eq(16).text().trim();
-    const outputs = dataRow.eq(17).text().trim();
-    const SLISuppot = dataRow.eq(18).text().trim();
-    const fans = dataRow.eq(21).text().trim();
+    let i = 1;
+    const frecuencyAux = $getData(i++).match(/\d+/g);
+    const baseFrecuency = Number(frecuencyAux[1] || frecuencyAux[0]);
+    const maxFrecuency = Number(frecuencyAux[0]);
+    const cudaCores = Number($getData(i++));
+    const memoryClock = Number(
+      $getData(i++)
+        .match(/\d+/g)
+        .at(0),
+    );
+    i = i + 1;
+    let memoryType = $getData(i++);
+    if (!memoryType.includes('DDR')) {
+      memoryType = $getData(i);
+      i = i + 1;
+    }
+    const memoryBus = Number(
+      $getData(i++)
+        .match(/\d+/g)
+        .at(0),
+    );
+    const memoryBandwidth = Number(
+      $getData(i++)
+        .match(/\d+/g)
+        .at(0),
+    );
+    let cardBus = $getData(i++);
+    if (!cardBus.includes('PCI')) {
+      cardBus = null;
+      i = i - 1;
+    }
+    let maxResolution = $getData(i++);
+    if (!maxResolution.includes('x')) {
+      maxResolution = null;
+      i = i - 1;
+    }
+    const maxDisplays = Number($getData(i++));
+    const cardSizeAux = $getData(i++).match(/\d+/g);
+    const cardSize = cardSizeAux && {
+      long: Number(cardSizeAux[0]),
+      width: Number(cardSizeAux[1]),
+      height: Number(cardSizeAux[2]),
+    };
+    const cardForm = $getData(i++);
+    const directXVersion = $getData(i++);
+    const openGlVersion = $getData(i++);
+    const tdp = Number(
+      $getData(i++)
+        .match(/\d+/g)
+        .at(0),
+    );
+    const pines = $getData(i++);
+    const outputs = $getData(i++)
+      .split('\n')
+      .flatMap((o) => o.split(','))
+      .map((o) => {
+        const [type, quantity] = o.split('*');
+        return {
+          [type.trim()]: Number(quantity?.at(0)),
+        };
+      });
+    const SLISupport = $getData(i++) !== 'N/A';
+    i = i + 2;
+    const fans = $getData(i);
 
     return {
-      frecuency,
+      baseFrecuency,
+      maxFrecuency,
       cudaCores,
       memoryClock,
       memoryType,
@@ -131,12 +188,12 @@ export class GigabyteGraphicsService extends GraphicCardScrap<any> {
       maxDisplays,
       cardSize,
       cardForm,
-      directX,
-      openGl,
-      power,
+      directXVersion,
+      openGlVersion,
+      tdp,
       pines,
       outputs,
-      SLISuppot,
+      SLISupport,
       fans,
     };
   }
