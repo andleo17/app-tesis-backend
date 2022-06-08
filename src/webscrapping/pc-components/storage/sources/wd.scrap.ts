@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { lastValueFrom } from 'rxjs';
 import * as fs from 'fs/promises';
 import * as cheerio from 'cheerio';
+import { WesternDigitalStorageModel } from '../models/WesternDigital.model';
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
@@ -10,7 +11,7 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 export class WesternDigitalStorageScrapService {
   constructor(private readonly axios: HttpService) {}
 
-  public async getStorages(): Promise<any[]> {
+  public async getStorages(): Promise<WesternDigitalStorageModel[]> {
     const storages = [];
 
     try {
@@ -42,9 +43,9 @@ export class WesternDigitalStorageScrapService {
     return storages;
   }
 
-  private async readStorages(content: any): Promise<any> {
+  private async readStorages(content: any) {
     const { products } = content;
-    const storages = await Promise.all(
+    const storages = await Promise.all<WesternDigitalStorageModel>(
       products.map((p) => this.extractStoragesInfo(p)),
     );
     return storages.filter((s) => s !== null);
@@ -61,28 +62,70 @@ export class WesternDigitalStorageScrapService {
     try {
       await sleep(2000);
       const { data } = await lastValueFrom(this.axios.get(url));
-      return this.extractStorageDetail(data);
+      return this.extractStorageDetail(data, url);
     } catch (error) {
       return null;
     }
   }
 
-  private async extractStorageDetail(content: any) {
+  private async extractStorageDetail(content: string, url: string) {
     const $ = cheerio.load(content);
     const imageInfo = JSON.parse(
       $('div[productimages-dir]').attr('data-productimagesjson-string'),
     );
-    const storageInfo = $('div[productattributes-dir]').map((_, el) => {
-      const $el = $(el);
-      const id = $el.attr('data-sku').trim();
-      const data = $el.attr('data-productattributes').trim();
+    const model = $('h1').text().trim().split('\n\t\t\t').at(1);
+    let type = '';
+    if (model.includes('NVMe')) {
+      type = 'SSD M.2 NVMe';
+    } else if (model.includes('M.2')) {
+      type = 'SSD M.2 SATA';
+    } else if (model.includes('SSD')) {
+      type = 'SSD SATA';
+    } else {
+      type = 'HDD SATA';
+    }
+    try {
+      const $storageInfo = $('div[productattributes-dir]');
 
-      return {
-        id,
-        ...JSON.parse(data),
-        image: imageInfo[id],
-      };
-    });
-    return storageInfo.toArray();
+      const storages = $storageInfo.map((_, el) => {
+        const $el = $(el);
+        const code = $el.attr('data-sku').trim();
+        const data = JSON.parse($el.attr('data-productattributes').trim());
+        const dimensions = data['txtDimensions']
+          ?.split('x')
+          .map((d: string) => Number(d.replace('"', '')));
+        return {
+          code,
+          model,
+          type,
+          formFactor: data['txtFormFactor'],
+          diskSpeed: Number(data['txtDiskSpeed']?.match(/\d+/)?.at(0)),
+          transferRate: Number(data['txtTransferRate']?.match(/\d+/)?.at(0)),
+          capacity: Number(
+            data['variant-category:vc-capacity'].match(/\d+/)[0],
+          ),
+          capacityUnit: data['variant-category:vc-capacity']
+            .match(/\D+/)[0]
+            .trim(),
+          interface: data['txtInterface'],
+          connector: data['txtConnector'],
+          dimensions: dimensions && {
+            height: dimensions[0],
+            width: dimensions[1],
+            depth: dimensions[2],
+          },
+          readVelocity: Number(data['txtSequentialRead']?.match(/\d+/)[0]),
+          writeVelocity: Number(data['txtSequentialWrite']?.match(/\d+/)[0]),
+          image:
+            'https://www.westerndigital.com' +
+            (imageInfo[code] && Object.keys(imageInfo[code])[0]),
+          url,
+        };
+      });
+      return storages.toArray<WesternDigitalStorageModel>();
+    } catch (error) {
+      console.error(url, error);
+      return null;
+    }
   }
 }
