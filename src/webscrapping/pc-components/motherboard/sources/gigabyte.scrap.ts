@@ -4,14 +4,15 @@ import { MotherboardScrap } from '../services/Motherboard.scrap';
 import * as qs from 'qs';
 import * as fs from 'fs/promises';
 import * as cheerio from 'cheerio';
+import { GigabyteMotherboardModel } from '../models/gigabyte.model';
 
-export class GigabyteMotherboardsService extends MotherboardScrap<any> {
+export class GigabyteMotherboardsService extends MotherboardScrap<GigabyteMotherboardModel> {
   public constructor(protected readonly axios: HttpService) {
     super(axios);
   }
 
-  public async getMotherboards(): Promise<any[]> {
-    const motherboards = [];
+  public async getMotherboards() {
+    const motherboards: GigabyteMotherboardModel[] = [];
     let next = true;
     let page = 1;
 
@@ -50,9 +51,9 @@ export class GigabyteMotherboardsService extends MotherboardScrap<any> {
     return motherboards;
   }
 
-  protected async readMotherboards(content: any): Promise<any> {
+  protected async readMotherboards(content: any) {
     const motherboardListRaw = content.Products.ProductList;
-    const motherboardsRaw = await Promise.all(
+    const motherboardsRaw = await Promise.all<GigabyteMotherboardModel>(
       motherboardListRaw.map((m: any) => this.extractMotherboardsInfo(m)),
     );
 
@@ -64,16 +65,21 @@ export class GigabyteMotherboardsService extends MotherboardScrap<any> {
     };
   }
 
-  protected async extractMotherboardsInfo(json: any) {
+  protected async extractMotherboardsInfo(
+    json: any,
+  ): Promise<GigabyteMotherboardModel> {
+    const processorInfo = json.ComparisonDisplayChipset.split(' ');
     const motherboard = {
       id: json.seq_product,
-      model: json.model_name,
-      publishDate: new Date(json.publish_date),
-      name: json.name,
-      chipset: json.ComparisonDisplayChipset,
-      socket: json.ComparisonDisplaySocket,
-      factor: json.ComparisonDisplayFactor,
+      name: json.model_name,
       image: 'https:' + json.Images[0].url,
+      formFactor: json.ComparisonDisplayFactor,
+      publishDate: new Date(json.publish_date),
+      processor: {
+        brand: processorInfo[0],
+        chipset: processorInfo[1],
+        socket: json.ComparisonDisplaySocket.replace('Socket ', ''),
+      },
     };
 
     if (new Date().getFullYear() - motherboard.publishDate.getFullYear() > 5) {
@@ -88,48 +94,139 @@ export class GigabyteMotherboardsService extends MotherboardScrap<any> {
     return { ...motherboard, ...motherboardDetail };
   }
 
-  protected async getMotherboardDetail(url: string): Promise<any> {
+  protected async getMotherboardDetail(url: string) {
     const { data } = await lastValueFrom(this.axios.get(url));
     return this.extractMotherboardDetail(data);
   }
 
   protected extractMotherboardDetail(content: string) {
     const $ = cheerio.load(content);
-
+    const labelRow = $('.row-title-container')
+      .map((i, row) => $(row).text())
+      .toArray()
+      .map((l) => l.trim());
     const dataRow = $('.data-row');
+    const url =
+      'https://www.gigabyte.com' + $('.compare__product-link').attr('href');
 
-    const cpuSupport = dataRow.eq(0).text().trim();
-    const cpuSocket = dataRow.eq(1).text().trim();
-    const cpuChipset = dataRow.eq(2).text().trim();
-    const memorySupport = dataRow.eq(3).text().trim();
-    const includesGraphics = dataRow.eq(4).text().trim();
-    const audio = dataRow.eq(5).text().trim();
-    const lan = dataRow.eq(6).text().trim();
-    const slots = dataRow.eq(7).text().trim();
-    const wireless = dataRow.eq(8).text().trim();
-    const multiGraphics = dataRow.eq(9).text().trim();
-    const storage = dataRow.eq(10).text().trim();
-    const usb = dataRow.eq(11).text().trim();
-    const internalIO = dataRow.eq(12).text().trim();
-    const backPanel = dataRow.eq(13).text().trim();
-    const formFactor = dataRow.eq(15).text().trim();
-
-    return {
-      cpuSupport,
-      cpuSocket,
-      cpuChipset,
-      memorySupport,
-      includesGraphics,
-      audio,
-      lan,
-      slots,
-      wireless,
-      multiGraphics,
-      storage,
-      usb,
-      internalIO,
-      backPanel,
-      formFactor,
+    const $find = (label: string) => {
+      const index = labelRow.indexOf(label);
+      if (index === -1) {
+        return null;
+      }
+      return dataRow.eq(index).text().trim();
     };
+
+    try {
+      const memorySupport = $find('Memory');
+      const includesGraphics = $find('Onboard Graphics');
+      const lan = $find('LAN');
+      const slots = $find('Expansion Slots');
+      const wireless = $find('Wireless Communication module');
+      const multiGraphics = $find('Multi-Graphics Technology');
+      const storage = $find('Storage Interface');
+      const usb = $find('USB');
+
+      const memoryMaxSupport = Number(
+        memorySupport
+          .match(/up to \d+ ?GB/g)
+          .at(0)
+          .replace(/\D/g, ''),
+      );
+
+      const memorySlots = Number(memorySupport.match(/\d x/g).at(0).at(0));
+      const graphicPorts = includesGraphics?.match(/\d x .+/g);
+      const lanInfo = lan
+        ?.match(/\([^\(\)]+\)?/g)
+        .filter((l) => l.match(/(M|G)(bit|bps)/g) !== null)
+        .map((l) => l.replace(/\(|\)/g, ''));
+      const lanPorts = lan
+        ?.replace(/\([^\(\)]+\)?/g, '')
+        .trim()
+        .split('\n')
+        .map((l) => l.trim())
+        .filter(Boolean);
+
+      const slotInfo = slots.match(/\d+ x .+/g);
+
+      return {
+        url,
+        memory: {
+          frecuencies: Array.from(memorySupport.match(/\d{4}/g)),
+          type: memorySupport.match(/DDR\d/g).at(0),
+          format: memorySupport.match(/.DIMM/g).at(0).trim(),
+          slots: memorySlots,
+          maxSupport: memoryMaxSupport / memorySlots,
+          hasDualChannel: memorySupport.includes('Dual channel'),
+          hasXMP: memorySupport.includes('XMP'),
+        },
+        graphics: graphicPorts?.map((g) => ({
+          quantity: Number(g[0]),
+          port: g.replace(/\d x /g, '').replace(/,.+/g, ''),
+          maxResolution: g.match(/\d+x\d+/g)?.at(0),
+          frecuency: Number(g.match(/@\d+/g)?.at(0).replace(/\D/g, '')),
+        })),
+        lan: lanPorts.map((l, i) => ({
+          chipset: l,
+          velocity: lanInfo[i]?.split('/'),
+        })),
+        slots: slotInfo.map((s) => {
+          const [quantity, name] = s.split(' x ');
+          return {
+            quantity: Number(quantity),
+            name,
+          };
+        }),
+        wireless: {
+          hasWifi: wireless?.match(/wi-?fi/i) !== null,
+          hasBluetooth: wireless?.match(/bluetooth/i) !== null,
+        },
+        multigraphics: {
+          amd: multiGraphics?.includes('AMD'),
+          nvidia: multiGraphics?.includes('NVIDIA'),
+        },
+        storage: [
+          {
+            connector: 'SATA',
+            slots: Number(
+              storage
+                .match(/(\d x SATA)/g)
+                ?.at(0)
+                .at(0),
+            ),
+            interface: 'SATA',
+          },
+          {
+            connector: 'M.2',
+            interface: 'SATA',
+            slots: Number(
+              storage
+                .match(/.+(SATA and).+/g)
+                ?.reduce((acc, cur) => acc + Number(cur.at(0)), 0),
+            ),
+          },
+          {
+            connector: 'M.2',
+            interface: 'PCI Express 4.0 x4',
+            slots: Number(
+              storage
+                .match(/.+(PCIe 4.0).+/g)
+                ?.reduce((acc, cur) => acc + Number(cur.at(0)), 0),
+            ),
+          },
+        ],
+        usb: usb.match(/\d x .+/g)?.map((u) => ({
+          slots: Number(u[0]),
+          type: u
+            .match(/[A-Z].+(?=ports? )/g)
+            ?.at(0)
+            .trim(),
+          isInBackPanel: u.includes('back panel'),
+        })),
+      };
+    } catch (error: any) {
+      console.error('Error en la extraccion de datos ' + url, error);
+      return null;
+    }
   }
 }
