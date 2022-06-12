@@ -3,6 +3,7 @@ import { lastValueFrom } from 'rxjs';
 import { PowersupplyScrap } from '../services/Powersupply.scrap';
 import * as fs from 'fs/promises';
 import * as cheerio from 'cheerio';
+import { ThermaltakePowerSupplyModel } from '../models/thermaltake.model';
 
 const categories = {
   81: 'PSU con software de monitoreo',
@@ -10,13 +11,13 @@ const categories = {
   83: 'PSU populares y fiables',
 };
 
-export class ThermaltakePowerSupplyService extends PowersupplyScrap<any> {
+export class ThermaltakePowerSupplyService extends PowersupplyScrap<ThermaltakePowerSupplyModel> {
   public constructor(protected readonly axios: HttpService) {
     super(axios);
   }
 
-  public async getPowersupplys(): Promise<any[]> {
-    const powerSupplies = [];
+  public async getPowersupplys() {
+    const powerSupplies: ThermaltakePowerSupplyModel[] = [];
     for (const category in categories) {
       let next = true;
       let page = 1;
@@ -38,12 +39,14 @@ export class ThermaltakePowerSupplyService extends PowersupplyScrap<any> {
           );
 
           const powerSupplyList = await this.readPowersupplies(data);
-          powerSupplyList.data = powerSupplyList.data.map((ps: any) => ({
-            ...ps,
-            category: categories[category],
-            rgb: ps.name.includes('RGB'),
-          }));
-          powerSupplies.push(...powerSupplyList.data);
+
+          powerSupplies.push(
+            ...powerSupplyList.data.map((ps) => ({
+              ...ps,
+              type: categories[category],
+              rgb: ps.name.includes('RGB'),
+            })),
+          );
 
           next = powerSupplyList.next;
           page++;
@@ -60,7 +63,7 @@ export class ThermaltakePowerSupplyService extends PowersupplyScrap<any> {
     return powerSupplies;
   }
 
-  protected async readPowersupplies(content: any): Promise<any> {
+  protected async readPowersupplies(content: any) {
     const powerSuppliesListRaw = content.html.products_list;
     const $ = cheerio.load(powerSuppliesListRaw);
 
@@ -92,7 +95,15 @@ export class ThermaltakePowerSupplyService extends PowersupplyScrap<any> {
       .trim();
     const url = $element.find('.product-item-link').attr('href').trim();
     const name = $element.find('.product-item-link').text().trim();
-    const price = $element.find('.price').text().trim();
+    const price = Number(
+      $element
+        .find('.price')
+        .text()
+        .trim()
+        .match(/[\d,]+/g)
+        .at(0)
+        .replace(',', '.'),
+    );
 
     const powerSupply = {
       photoURL,
@@ -113,7 +124,7 @@ export class ThermaltakePowerSupplyService extends PowersupplyScrap<any> {
     return { ...powerSupply, ...powerSupplyDetail };
   }
 
-  protected async getPowersupplyDetail(url: string): Promise<any> {
+  protected async getPowersupplyDetail(url: string) {
     const { data } = await lastValueFrom(this.axios.get(url));
     return this.extractPowersupplyDetail(data);
   }
@@ -122,56 +133,80 @@ export class ThermaltakePowerSupplyService extends PowersupplyScrap<any> {
     const $ = cheerio.load(content);
 
     const dataRow = $('.col.data');
-    const code = dataRow.eq(0).text().trim();
-    const watts = dataRow.eq(1).text().trim();
-    const model = dataRow.eq(2).text().trim();
-    const maxOutput = dataRow.eq(3).text().trim();
-    const peakOutput = dataRow.eq(4).text().trim();
-    const color = dataRow.eq(5).text().trim();
-    const dimmensions = dataRow.eq(6).text().trim();
-    const pfc = dataRow.eq(7).text().trim();
-    const powerGoodSignal = dataRow.eq(8).text().trim();
-    const holdUpTime = dataRow.eq(9).text().trim();
-    const inputCurrent = dataRow.eq(10).text().trim();
-    const inputFrecuencyRange = dataRow.eq(11).text().trim();
-    const inputVoltage = dataRow.eq(12).text().trim();
-    const operatingTemperature = dataRow.eq(13).text().trim();
-    const operatingHumidity = dataRow.eq(14).text().trim();
-    const storageTemperature = dataRow.eq(15).text().trim();
-    const coolingSystem = dataRow.eq(16).text().trim();
-    const efficency = dataRow.eq(17).text().trim();
-    const mtbf = dataRow.eq(18).text().trim();
-    const saffetyApproval = dataRow.eq(19).text().trim();
-    const pciPines = dataRow.eq(20).text().trim();
-    const protection = dataRow.eq(21).text().trim();
+    const dataLabel = $('.col.label')
+      .map((_, el) => $(el).text().trim())
+      .toArray();
+
+    const $find = (label: string) => {
+      const index = dataLabel.indexOf(label);
+      if (index === -1) return null;
+      return dataRow.eq(index).text().trim();
+    };
+
+    const code = $find('P/N').split('\n');
+    const formFactor = $find('Factor de Forma') || 'ATX';
+    const watts = Number($find('watts')?.match(/\d+/g).at(0));
+    const model = $find('Model');
+    const maxOutput = Number($find('Max. Output Capacity')?.replace(/\D/g, ''));
+    const peakOutput = Number(
+      $find('Peak Output Capacity')?.replace(/\D/g, ''),
+    );
+    const dimmensions = $find('Dimension ( W / H / D )')
+      ?.match(/\d+/g)
+      .map((d) => Number(d));
+    const inputCurrent = Number($find('Input Current')?.match(/\d+/g).at(0));
+    const inputFrecuencyRange = $find('Input Frequency Range')
+      ?.match(/\d+/g)
+      .map((d) => Number(d));
+    const inputVoltage = $find('Input Voltage')
+      ?.match(/\d+/g)
+      .map((d) => Number(d));
+    const efficency =
+      $find('Efficiency')?.match(/®\w+/g)?.at(0).replace('®', '') || 'Normal';
+    const pciPines = Number($find('PCI-E 6+2pin') || $find('Conector PCI-E'));
     const releaseDate = new Date(
       $('.product-attachment').find('li').eq(4).text().trim(),
     );
 
+    const modularityInfo = $('.product.attribute.overview')
+      .text()
+      .trim()
+      .match(/\w+(?=( |-)modular)/gi)
+      ?.at(0)
+      .toLowerCase();
+
+    const modularity = modularityInfo?.includes('full')
+      ? 2
+      : modularityInfo?.includes('semi')
+      ? 1
+      : 0;
+
     return {
-      code,
-      watts,
-      model,
-      maxOutput,
-      peakOutput,
-      color,
-      dimmensions,
-      pfc,
-      powerGoodSignal,
-      holdUpTime,
-      inputCurrent,
-      inputFrecuencyRange,
-      inputVoltage,
-      operatingTemperature,
-      operatingHumidity,
-      storageTemperature,
-      coolingSystem,
-      efficency,
-      mtbf,
-      saffetyApproval,
-      pciPines,
-      protection,
+      codes: [model, ...code].filter(Boolean),
       releaseDate,
+      dimmensions: dimmensions && {
+        width: dimmensions[0],
+        height: dimmensions[1],
+        depth: dimmensions[2],
+      },
+      formFactor,
+      pciPines,
+      power: watts,
+      current: inputCurrent,
+      voltage: inputVoltage && {
+        min: inputVoltage[0],
+        max: inputVoltage[1],
+      },
+      frequency: inputFrecuencyRange && {
+        min: inputFrecuencyRange[0],
+        max: inputFrecuencyRange[1],
+      },
+      output: {
+        min: maxOutput,
+        max: peakOutput,
+      },
+      efficiency80plus: efficency,
+      modularity,
     };
   }
 }
