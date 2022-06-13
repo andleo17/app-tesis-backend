@@ -5,6 +5,9 @@ export class FormInput {
   @Field()
   questionLabel: string;
 
-  @Field(() => Int)
-  answerPosition: number;
+  @Field(() => Int, { nullable: true })
+  answer: number;
+
+  @Field(() => [Int], { nullable: true })
+  multipleChoiceAnswers: number[];
 }

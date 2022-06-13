@@ -47,7 +47,8 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 input FormInput {
-  answerPosition: Int!
+  answer: Int
+  multipleChoiceAnswers: [Int!]
   questionLabel: String!
 }
 
@@ -137,6 +138,7 @@ type QuestionCategoryModel {
 type QuestionModel {
   category: QuestionCategoryModel!
   content: String!
+  isMultipleChoice: Boolean!
   label: ID!
   options: [QuestionOptionModel!]!
   questionCategory: QuestionCategoryModel!

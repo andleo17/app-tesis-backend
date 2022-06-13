@@ -11,6 +11,9 @@ export class QuestionModel implements Question {
   @Field()
   content: string;
 
+  @Field()
+  isMultipleChoice: boolean;
+
   @Field(() => Int)
   questionCategoryId: number;
 
