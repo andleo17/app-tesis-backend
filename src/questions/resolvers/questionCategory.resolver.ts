@@ -1,4 +1,11 @@
-import { Parent, Query, ResolveField, Resolver } from '@nestjs/graphql';
+import {
+  Args,
+  Int,
+  Parent,
+  Query,
+  ResolveField,
+  Resolver,
+} from '@nestjs/graphql';
 import { QuestionModel } from '../models/question.model';
 import { QuestionCategoryModel } from '../models/questionCategory.model';
 import { QuestionService } from '../services/question.service';
@@ -21,12 +28,18 @@ export class QuestionCategoryResolver {
   }
 
   @Query(() => [QuestionCategoryModel])
-  async getQuestionCategories(): Promise<QuestionCategoryModel[]> {
-    return this.questionCategoryService.getQuestionCategories();
+  async getQuestionCategories(
+    @Args('ids', { type: () => [Int] }) ids: number[],
+  ): Promise<QuestionCategoryModel[]> {
+    return this.questionCategoryService.getQuestionCategories({
+      where: { id: { in: ids } },
+    });
   }
 
   @Query(() => QuestionCategoryModel)
-  async getQuestionCategory(id: number): Promise<QuestionCategoryModel> {
+  async getQuestionCategory(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<QuestionCategoryModel> {
     return this.questionCategoryService.getQuestionCategory(id);
   }
 }

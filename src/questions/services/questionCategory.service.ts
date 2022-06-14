@@ -6,8 +6,14 @@ import { PrismaService } from 'src/databases/questions/prisma.service';
 export class QuestionCategoryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getQuestionCategories(): Promise<QuestionCategory[]> {
-    return this.prisma.questionCategory.findMany();
+  async getQuestionCategories(
+    data?: Prisma.QuestionCategoryFindManyArgs,
+  ): Promise<QuestionCategory[]> {
+    const filter = data || {};
+    return this.prisma.questionCategory.findMany({
+      orderBy: { id: 'desc' },
+      ...filter,
+    });
   }
 
   async getQuestionCategory(id: number): Promise<QuestionCategory> {

@@ -117,8 +117,8 @@ type Query {
   getPowerSupplies: [PowerSuplyModel!]!
   getPowerSupply(id: Int!): PowerSuplyModel!
   getQuestion: QuestionModel!
-  getQuestionCategories: [QuestionCategoryModel!]!
-  getQuestionCategory: QuestionCategoryModel!
+  getQuestionCategories(ids: [Int!]!): [QuestionCategoryModel!]!
+  getQuestionCategory(id: Int!): QuestionCategoryModel!
   getQuestionOption: QuestionOptionModel!
   getQuestionOptions: [QuestionOptionModel!]!
   getQuestions: [QuestionModel!]!

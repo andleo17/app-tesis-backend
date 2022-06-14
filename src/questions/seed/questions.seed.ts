@@ -61,12 +61,12 @@ const questions: QuestionCategoryModel[] = [
           {
             questionLabel: 'pg-use_of_computer',
             position: 1,
-            content: 'Oficina',
+            content: 'Gaming',
           },
           {
             questionLabel: 'pg-use_of_computer',
             position: 2,
-            content: 'Gaming',
+            content: 'Oficina',
           },
           {
             questionLabel: 'pg-use_of_computer',
