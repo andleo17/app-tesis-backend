@@ -114,7 +114,7 @@ type PowerSuplyModel {
 }
 
 type Query {
-  getComponent: ComponentModel!
+  getComponent(id: Int!): ComponentModel!
   getComponents(ids: [Int!]!): [ComponentModel!]!
   getCpu(id: Int!): CpuModel!
   getCpus: [CpuModel!]!

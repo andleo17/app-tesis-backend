@@ -14,7 +14,9 @@ export class ComponentResolver {
   }
 
   @Query(() => ComponentModel)
-  async getComponent(id: number): Promise<ComponentModel> {
+  async getComponent(
+    @Args('id', { type: () => Int }) id: number,
+  ): Promise<ComponentModel> {
     return this.componentService.getComponent(id);
   }
 }
