@@ -1,4 +1,4 @@
-import { Query, Resolver } from '@nestjs/graphql';
+import { Args, Int, Query, Resolver } from '@nestjs/graphql';
 import { ComponentModel } from '../models/component.model';
 import { ComponentsService } from '../services/component.service';
 
@@ -7,8 +7,10 @@ export class ComponentResolver {
   constructor(private readonly componentService: ComponentsService) {}
 
   @Query(() => [ComponentModel])
-  async getComponents(): Promise<ComponentModel[]> {
-    return this.componentService.getComponents();
+  async getComponents(
+    @Args('ids', { type: () => [Int] }) ids: number[],
+  ): Promise<ComponentModel[]> {
+    return this.componentService.getComponents({ id: { in: ids } });
   }
 
   @Query(() => ComponentModel)

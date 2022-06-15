@@ -11,7 +11,7 @@ export class QuestionCategoryService {
   ): Promise<QuestionCategory[]> {
     const filter = data || {};
     return this.prisma.questionCategory.findMany({
-      orderBy: { id: 'desc' },
+      orderBy: { id: 'asc' },
       ...filter,
     });
   }

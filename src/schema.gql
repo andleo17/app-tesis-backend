@@ -11,7 +11,15 @@ type ComponentModel {
   model: String!
   rgb: Boolean!
   suggestedPrice: Float
-  type: String!
+  type: ComponentTypeModel!
+  typeId: Int!
+}
+
+type ComponentTypeModel {
+  description: String!
+  id: ID!
+  name: String!
+  slug: String!
 }
 
 type CpuModel {
@@ -107,7 +115,7 @@ type PowerSuplyModel {
 
 type Query {
   getComponent: ComponentModel!
-  getComponents: [ComponentModel!]!
+  getComponents(ids: [Int!]!): [ComponentModel!]!
   getCpu(id: Int!): CpuModel!
   getCpus: [CpuModel!]!
   getGpu(id: Int!): GpuModel!

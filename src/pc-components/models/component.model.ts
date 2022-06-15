@@ -1,5 +1,6 @@
-import { Field, Float, ID, ObjectType } from '@nestjs/graphql';
+import { Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
 import { Component } from '@prisma/client';
+import { ComponentTypeModel } from './componentType.model';
 
 @ObjectType()
 export class ComponentModel implements Component {
@@ -12,6 +13,9 @@ export class ComponentModel implements Component {
   @Field({ nullable: true })
   deltronId: string;
 
+  @Field(() => Int)
+  typeId: number;
+
   @Field({ nullable: true })
   image: string;
 
@@ -21,12 +25,12 @@ export class ComponentModel implements Component {
   @Field()
   model: string;
 
-  @Field()
-  type: string;
-
   @Field(() => Float, { nullable: true })
   suggestedPrice: number;
 
   @Field()
   rgb: boolean;
+
+  @Field(() => ComponentTypeModel)
+  type?: ComponentTypeModel;
 }

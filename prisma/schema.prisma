@@ -32,16 +32,25 @@ model QuestionOption {
   @@id([questionLabel, position])
 }
 
+model ComponentType {
+  id          Int         @id
+  slug        String      @unique
+  name        String
+  description String
+  components  Component[]
+}
+
 model Component {
-  id             Int          @id @default(autoincrement())
-  frabricId      String       @unique
-  deltronId      String?      @unique
+  id             Int           @id @default(autoincrement())
+  frabricId      String        @unique
+  deltronId      String?       @unique
+  typeId         Int
   image          String?
   brand          String
   model          String
-  type           String
   suggestedPrice Float?
   rgb            Boolean?
+  type           ComponentType @relation(fields: [typeId], references: [id])
   cpu            Cpu?
   ram            Ram?
   motherboard    Motherboard?

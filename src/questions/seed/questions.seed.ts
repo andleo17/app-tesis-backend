@@ -47,10 +47,41 @@ const questions: QuestionCategoryModel[] = [
       },
       {
         label: 'pg-store',
-        content: '¿Cuánto necesitas almacenar en tu computadora?',
-        isMultipleChoice: false,
+        content: '¿Qué tipo de archivos almacenarás principalmente?',
+        isMultipleChoice: true,
         questionCategoryId: 1,
-        options: [],
+        options: [
+          {
+            questionLabel: 'pg-store',
+            position: 1,
+            content: 'Imágenes',
+          },
+          {
+            questionLabel: 'pg-store',
+            position: 2,
+            content: 'Vídeos',
+          },
+          {
+            questionLabel: 'pg-store',
+            position: 3,
+            content: 'Documentos',
+          },
+          {
+            questionLabel: 'pg-store',
+            position: 4,
+            content: 'Audios',
+          },
+          {
+            questionLabel: 'pg-store',
+            position: 5,
+            content: 'Otros',
+          },
+          {
+            questionLabel: 'pg-store',
+            position: 6,
+            content: 'No estoy seguro',
+          },
+        ],
       },
       {
         label: 'pg-use_of_computer',
@@ -294,18 +325,18 @@ const questions: QuestionCategoryModel[] = [
           },
           {
             questionLabel: 'streaming-video_quality',
-            position: 1,
+            position: 2,
             content:
               '900p 60FPS (Alta calidad, contenido con mucho movimiento)',
           },
           {
             questionLabel: 'streaming-video_quality',
-            position: 1,
+            position: 3,
             content: '720p 60FPS (Calidad media, conexiones lentas)',
           },
           {
             questionLabel: 'streaming-video_quality',
-            position: 1,
+            position: 4,
             content: '720p 30FPS (Streaming básico)',
           },
         ],
