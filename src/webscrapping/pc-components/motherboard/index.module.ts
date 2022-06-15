@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AsrockScrapModule } from './models/asrock.module';
+import { AsrockScrapModule } from './modules/asrock.module';
 import { GigabyteMotherboardScrapModule } from './modules/gigabyte.module';
 
 @Module({
