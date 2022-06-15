@@ -39,7 +39,7 @@ export class IntelService {
 
         const processorList = await this.readProcessorsList(data);
 
-        processors.push(...processorList.data);
+        processors.push(...processorList.data.filter((p) => p.model !== ''));
 
         next = processorList.next;
         page++;
@@ -224,6 +224,7 @@ export class IntelService {
     );
 
     return {
+      fabricatorId: '',
       model,
       image,
       family,

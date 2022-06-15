@@ -75,17 +75,9 @@ export class AMDProcessorService {
     const url = `https://www.amd.com/en/product/${id}`;
     const model = name.match(/(\d{3,})\w*/g).at(0);
     const family = name.replace(new RegExp(`${model}.+`, 'g'), '').trim();
-    const generation = Number(model.match(/\d+(?=\d{3,})/g)?.at(0));
+    const generation = Number(model.match(/\d+(?=\d{3,})/g)?.at(0) || 1);
     const specificator = model.match(/(?!\d).*/g).at(0);
-    const codes = [
-      ...$find('field-opn-tray')
-        .replace(/(\w+:\t?)|\//g, '')
-        .split(' '),
-      $find('field-opn-pib'),
-      $find('field-opn-mpk'),
-    ]
-      .filter(Boolean)
-      .filter((c) => c !== 'n/a');
+    const fabricatorId = $find('field-opn-pib') || id.toString();
     const cores = Number($find('field-cpu-core-count'));
     const threads = Number($find('field-thread-count'));
     const gpuCores = Number($find('field-gpu-core-count'));
@@ -113,7 +105,7 @@ export class AMDProcessorService {
     const maxMemorySpeed = Number(
       $find('field-max-memory-speed').replace(/[^0-9]/g, ''),
     );
-    const memoryType = $find('product-type-6');
+    const memoryType = $find('product-type-6') || 'DDR4';
     const memoryChannels = Number(
       $find('field-memory-channels').replace(/[^0-9]/g, ''),
     );
@@ -124,6 +116,7 @@ export class AMDProcessorService {
 
     return {
       id,
+      fabricatorId: fabricatorId !== 'n/a' ? fabricatorId : id.toString(),
       name,
       url,
       model,
@@ -131,7 +124,6 @@ export class AMDProcessorService {
       specificator,
       family,
       platform,
-      codes,
       launchDate,
       cores,
       threads,
@@ -147,7 +139,7 @@ export class AMDProcessorService {
       portType,
       tdp,
       maxTemperature,
-      maxMemory: null,
+      maxMemory: 0,
       memoryType: `${memoryType}-${maxMemorySpeed}`,
       memoryChannels,
       graphicsFrecuency,

@@ -1,5 +1,6 @@
 export class AMDProcessorModel {
   id: number;
+  fabricatorId: string;
   url: string;
   name: string;
   model: string;
@@ -11,7 +12,6 @@ export class AMDProcessorModel {
   portType: string;
   launchDate: Date;
   platform: string;
-  codes: string[];
   cores: number;
   threads: number;
   baseFrecuency: number;

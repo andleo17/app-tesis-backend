@@ -1,5 +1,6 @@
 export class IntelModel {
   id: number;
+  fabricatorId: string;
   url: string;
   model: string;
   socket: string;
