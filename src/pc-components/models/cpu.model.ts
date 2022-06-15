@@ -58,9 +58,6 @@ export class CpuModel implements Cpu {
   @Field(() => Int)
   maxMemory: number;
 
-  @Field(() => Int)
-  maxMemorySpeed: number;
-
   @Field()
   haveIntegratedGraphics: boolean;
 

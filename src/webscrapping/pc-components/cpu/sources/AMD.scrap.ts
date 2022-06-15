@@ -73,9 +73,8 @@ export class AMDProcessorService {
       $processorName.attr('class').split(' ')[1].replace('entity-', ''),
     );
     const url = `https://www.amd.com/en/product/${id}`;
-    const series = $find('product-type').replace('Processors', '').trim();
-    const seriesDetail = $find('product-type-1');
     const model = name.match(/(\d{3,})\w*/g).at(0);
+    const family = name.replace(new RegExp(`${model}.+`, 'g'), '').trim();
     const generation = Number(model.match(/\d+(?=\d{3,})/g)?.at(0));
     const specificator = model.match(/(?!\d).*/g).at(0);
     const codes = [
@@ -111,7 +110,7 @@ export class AMDProcessorService {
     const maxTemperature = Number(
       $find('field-max-temps').replace(/[^0-9]/g, ''),
     );
-    const maxMemory = Number(
+    const maxMemorySpeed = Number(
       $find('field-max-memory-speed').replace(/[^0-9]/g, ''),
     );
     const memoryType = $find('product-type-6');
@@ -130,8 +129,7 @@ export class AMDProcessorService {
       model,
       generation,
       specificator,
-      series,
-      seriesDetail,
+      family,
       platform,
       codes,
       launchDate,
@@ -149,8 +147,8 @@ export class AMDProcessorService {
       portType,
       tdp,
       maxTemperature,
-      maxMemory,
-      memoryType,
+      maxMemory: null,
+      memoryType: `${memoryType}-${maxMemorySpeed}`,
       memoryChannels,
       graphicsFrecuency,
       graphicsName,

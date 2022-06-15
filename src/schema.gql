@@ -39,7 +39,6 @@ type CpuModel {
   launchDate: DateTime
   lithography: String!
   maxMemory: Int!
-  maxMemorySpeed: Int!
   maxTemperature: Int!
   platform: String!
   socket: String!

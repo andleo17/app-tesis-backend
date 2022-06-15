@@ -78,7 +78,6 @@ model Cpu {
   maxTemperature         Int
   admitedMemory          String[]
   maxMemory              Int
-  maxMemorySpeed         Int
   haveIntegratedGraphics Boolean
   graphicBaseFrecuency   Float?
   graphicMaxFrecuency    Float?

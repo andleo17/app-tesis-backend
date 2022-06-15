@@ -1,24 +1,25 @@
 export class IntelModel {
   id: number;
   url: string;
-  launchDate: Date;
-  image: string;
-  family: string;
-  platform: string;
   model: string;
+  socket: string;
   generation: number;
+  family: string;
   lithography: number;
+  specificator: string;
+  launchDate: Date;
+  platform: string;
+  image: string;
   cores: number;
   threads: number;
   baseFrecuency: number;
   maxFrecuency: number;
+  cache: number;
+  tdp: number;
+  maxTemperature: number;
   maxMemory: number;
   memoryTypes: string[];
   maxChannelMemory: number;
-  cache: number;
-  tdp: number;
-  socket: string;
-  maxTemperature: number;
   graphics: {
     name: string;
     baseFrecuency: number;

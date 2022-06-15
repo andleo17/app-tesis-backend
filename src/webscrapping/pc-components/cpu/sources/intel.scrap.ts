@@ -117,6 +117,10 @@ export class IntelService {
       .trim();
     const platform = $('span[data-key="MarketSegment"]').text().trim();
     const model = $('span[data-key="ProcessorNumber"]').text().trim();
+    const specificator = model
+      .match(/\d{3,}\w+/g)
+      ?.at(0)
+      .replace(/\d+/g, '');
     const generationAux = model.replace(/i[0-9]|[^0-9]/g, '').trim();
     const generation = Number(
       generationAux.length > 4 ? generationAux.slice(0, 2) : generationAux[0],
@@ -225,6 +229,7 @@ export class IntelService {
       family,
       platform,
       generation,
+      specificator,
       lithography,
       cores,
       threads,
