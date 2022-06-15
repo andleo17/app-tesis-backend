@@ -27,7 +27,7 @@ export class GigabyteGPUModel {
   directXVersion: string;
   openGlVersion: string;
   tdp: number;
-  pines: string;
+  pines: number;
   outputs: { [key: string]: number }[];
   SLISupport: boolean;
   fans: string;

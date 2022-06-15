@@ -138,12 +138,12 @@ export class GigabyteGraphicsService extends GraphicCardScrap<GigabyteGPUModel> 
     );
     let cardBus = $getData(i++);
     if (!cardBus.includes('PCI')) {
-      cardBus = null;
+      cardBus = 'PCI-E 4.0 x 16';
       i = i - 1;
     }
     let maxResolution = $getData(i++);
     if (!maxResolution.includes('x')) {
-      maxResolution = null;
+      maxResolution = '7680x4320';
       i = i - 1;
     }
     const maxDisplays = Number($getData(i++));
@@ -161,7 +161,9 @@ export class GigabyteGraphicsService extends GraphicCardScrap<GigabyteGPUModel> 
         .match(/\d+/g)
         .at(0),
     );
-    const pines = $getData(i++);
+    // const pines = $getData(i++);
+    i = i + 1;
+    const pines = 8;
     const outputs = $getData(i++)
       .split('\n')
       .flatMap((o) => o.split(','))
