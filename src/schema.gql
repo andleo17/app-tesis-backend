@@ -78,18 +78,24 @@ type MotherboardModel {
   chipset: String!
   component: ComponentModel!
   componentId: ID!
-  format: String!
-  memoryChannel: Int!
+  formFactor: String!
+  hasWireless: Boolean!
+  memoryDualChannel: Boolean!
+  memoryFormat: String!
+  memoryFrecuencies: [String!]!
+  memoryMaxCapacity: Int!
   memorySlots: Int!
   memoryType: String!
-  networkInterfaceSpeed: String!
-  portsATA: Int!
-  portsPCIe: Int!
+  memoryXMP: Boolean!
+  networkInterfaceMaxSpeed: String!
+  portsM2PCIe: Int!
+  portsM2SATA: Int!
+  portsSATA: Int!
   portsUSB: Int!
   powerSupply: String!
-  size: String!
+  slotsPCIe: Int!
   socket: String!
-  supportedMemory: [String!]!
+  supportMultiGraphics: Boolean!
 }
 
 type Mutation {

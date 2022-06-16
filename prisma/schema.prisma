@@ -98,21 +98,27 @@ model Ram {
 }
 
 model Motherboard {
-  componentId           Int       @id
-  socket                String
-  chipset               String
-  size                  String
-  supportedMemory       String[]
-  memoryType            String
-  memorySlots           Int
-  memoryChannel         Int
-  networkInterfaceSpeed String
-  powerSupply           String
-  portsATA              Int
-  portsPCIe             Int
-  portsUSB              Int
-  format                String
-  component             Component @relation(fields: [componentId], references: [id])
+  componentId              Int       @id
+  socket                   String
+  chipset                  String
+  formFactor               String
+  memoryFrecuencies        String[]
+  memoryType               String
+  memoryFormat             String
+  memorySlots              Int
+  memoryMaxCapacity        Int
+  memoryDualChannel        Boolean
+  memoryXMP                Boolean
+  networkInterfaceMaxSpeed String
+  hasWireless              Boolean
+  supportMultiGraphics     Boolean
+  powerSupply              String
+  slotsPCIe                Int
+  portsSATA                Int
+  portsM2SATA              Int
+  portsM2PCIe              Int
+  portsUSB                 Int
+  component                Component @relation(fields: [componentId], references: [id])
 }
 
 model Gpu {

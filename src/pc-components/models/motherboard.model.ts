@@ -14,37 +14,55 @@ export class MotherboardModel implements Motherboard {
   chipset: string;
 
   @Field()
-  size: string;
+  formFactor: string;
 
   @Field(() => [String])
-  supportedMemory: string[];
+  memoryFrecuencies: string[];
 
   @Field()
   memoryType: string;
+
+  @Field()
+  memoryFormat: string;
 
   @Field(() => Int)
   memorySlots: number;
 
   @Field(() => Int)
-  memoryChannel: number;
+  memoryMaxCapacity: number;
 
   @Field()
-  networkInterfaceSpeed: string;
+  memoryDualChannel: boolean;
+
+  @Field()
+  memoryXMP: boolean;
+
+  @Field()
+  networkInterfaceMaxSpeed: string;
+
+  @Field()
+  hasWireless: boolean;
+
+  @Field()
+  supportMultiGraphics: boolean;
 
   @Field()
   powerSupply: string;
 
   @Field(() => Int)
-  portsATA: number;
+  slotsPCIe: number;
 
   @Field(() => Int)
-  portsPCIe: number;
+  portsSATA: number;
+
+  @Field(() => Int)
+  portsM2SATA: number;
+
+  @Field(() => Int)
+  portsM2PCIe: number;
 
   @Field(() => Int)
   portsUSB: number;
-
-  @Field()
-  format: string;
 
   @Field(() => ComponentModel)
   component?: ComponentModel;

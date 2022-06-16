@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from 'src/databases/questions/prisma.module';
-import { GpuScrapCommand } from './gpu.command';
+import { GpuScrapCommand } from './index.command';
 import { GigabyteGPUScrapModule } from './modules/gigabyte.module';
 
 @Module({

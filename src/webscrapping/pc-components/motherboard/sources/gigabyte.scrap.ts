@@ -46,9 +46,9 @@ export class GigabyteMotherboardsService extends MotherboardScrap<GigabyteMother
 
     await fs.writeFile(
       'results/motherboards/gigabyte.json',
-      JSON.stringify(motherboards),
+      JSON.stringify(motherboards.filter((motherboard) => motherboard.memory)),
     );
-    return motherboards;
+    return motherboards.filter((motherboard) => motherboard.memory);
   }
 
   protected async readMotherboards(content: any) {
@@ -170,21 +170,25 @@ export class GigabyteMotherboardsService extends MotherboardScrap<GigabyteMother
           chipset: l,
           velocity: lanInfo[i]?.split('/'),
         })),
-        slots: slotInfo.map((s) => {
+        slots: slotInfo?.map((s) => {
           const [quantity, name] = s.split(' x ');
           return {
             quantity: Number(quantity),
             name,
           };
-        }),
-        wireless: {
-          hasWifi: wireless?.match(/wi-?fi/i) !== null,
-          hasBluetooth: wireless?.match(/bluetooth/i) !== null,
-        },
-        multigraphics: {
-          amd: multiGraphics?.includes('AMD'),
-          nvidia: multiGraphics?.includes('NVIDIA'),
-        },
+        }) || [{ quantity: slots.split('\n').length, name: 'No slots' }],
+        wireless: wireless
+          ? {
+              hasWifi: wireless?.match(/wi-?fi/gi) !== null,
+              hasBluetooth: wireless?.match(/bluetooth/gi) !== null,
+            }
+          : null,
+        multigraphics: multiGraphics
+          ? {
+              amd: multiGraphics?.includes('AMD'),
+              nvidia: multiGraphics?.includes('NVIDIA'),
+            }
+          : null,
         storage: [
           {
             connector: 'SATA',
