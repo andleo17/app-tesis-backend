@@ -13,11 +13,8 @@ export class StorageModel implements Storage {
   @Field(() => Int)
   capacity: number;
 
-  @Field(() => Int, { nullable: true })
-  revolutions: number;
-
-  @Field(() => Int, { nullable: true })
-  cache: number;
+  @Field()
+  capacityUnit: string;
 
   @Field()
   format: string;
@@ -28,10 +25,13 @@ export class StorageModel implements Storage {
   @Field()
   haveSink: boolean;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
+  revolutions: number;
+
+  @Field(() => Int, { nullable: true })
   speedRead: number;
 
-  @Field(() => Int)
+  @Field(() => Int, { nullable: true })
   speedWrite: number;
 
   @Field(() => ComponentModel)

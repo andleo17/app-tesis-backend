@@ -172,15 +172,15 @@ type RamModel {
 }
 
 type StorageModel {
-  cache: Int
   capacity: Int!
+  capacityUnit: String!
   component: ComponentModel!
   componentId: ID!
   format: String!
   haveSink: Boolean!
   interface: String!
   revolutions: Int
-  speedRead: Int!
-  speedWrite: Int!
+  speedRead: Int
+  speedWrite: Int
   type: String!
 }

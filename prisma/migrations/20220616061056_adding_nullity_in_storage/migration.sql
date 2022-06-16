@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Storage" ALTER COLUMN "speedRead" DROP NOT NULL,
+ALTER COLUMN "speedWrite" DROP NOT NULL;

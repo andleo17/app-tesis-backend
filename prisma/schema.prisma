@@ -147,15 +147,15 @@ model PowerSupply {
 }
 
 model Storage {
-  componentId Int       @id
-  type        String
-  capacity    Int
-  revolutions Int?
-  cache       Int?
-  format      String
-  interface   String
-  haveSink    Boolean
-  speedRead   Int
-  speedWrite  Int
-  component   Component @relation(fields: [componentId], references: [id])
+  componentId  Int       @id
+  type         String
+  capacity     Int
+  capacityUnit String
+  format       String
+  interface    String
+  haveSink     Boolean
+  revolutions  Int?
+  speedRead    Int?
+  speedWrite   Int?
+  component    Component @relation(fields: [componentId], references: [id])
 }

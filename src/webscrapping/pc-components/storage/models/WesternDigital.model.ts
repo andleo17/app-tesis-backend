@@ -9,6 +9,7 @@ export class WesternDigitalStorageModel {
   capacityUnit: string;
   interface: string;
   connector: string;
+  haveSink: boolean;
   dimensions: {
     height: number;
     width: number;

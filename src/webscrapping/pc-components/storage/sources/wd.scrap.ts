@@ -40,7 +40,7 @@ export class WesternDigitalStorageScrapService {
       'results/storages/western-digital.json',
       JSON.stringify(storages.flatMap((s) => s)),
     );
-    return storages;
+    return storages.flatMap((s) => s);
   }
 
   private async readStorages(content: any) {
@@ -66,6 +66,37 @@ export class WesternDigitalStorageScrapService {
     } catch (error) {
       return null;
     }
+  }
+
+  private getFormFactor(type: string, height: number): string {
+    const heightInmm = Math.round(height * 25.4) || 0;
+    const formFactors = {
+      'SSD M.2 NVMe': {
+        0: '2280',
+        80: '2280',
+        42: '2242',
+        60: '2260',
+        100: '2.5 Inch',
+        176: 'Externa',
+      },
+      'SSD M.2 SATA': {
+        0: '2280',
+        80: '2280',
+        42: '2242',
+        60: '2260',
+      },
+      'SSD SATA': {
+        0: '2.5 Inch',
+        100: '2.5 Inch',
+        101: '2.5 Inch',
+      },
+      'HDD SATA': {
+        0: '3.5 Inch',
+        147: '3.5 Inch',
+      },
+    };
+
+    return formFactors[type][heightInmm];
   }
 
   private async extractStorageDetail(content: string, url: string) {
@@ -95,11 +126,12 @@ export class WesternDigitalStorageScrapService {
           ?.split('x')
           .map((d: string) => Number(d.replace('"', '')));
         return {
+          haveSink: code.includes('H'),
           code,
           model,
           type,
-          formFactor: data['txtFormFactor'],
-          diskSpeed: Number(data['txtDiskSpeed']?.match(/\d+/)?.at(0)),
+          formFactor: this.getFormFactor(type, dimensions?.at(0) || 0),
+          diskSpeed: Number(data['txtDiskSpeed']?.match(/\d+/)?.at(0)) || null,
           transferRate: Number(data['txtTransferRate']?.match(/\d+/)?.at(0)),
           capacity: Number(
             data['variant-category:vc-capacity'].match(/\d+/)[0],
@@ -107,19 +139,21 @@ export class WesternDigitalStorageScrapService {
           capacityUnit: data['variant-category:vc-capacity']
             .match(/\D+/)[0]
             .trim(),
-          interface: data['txtInterface'],
+          interface: data['txtInterface'] || 'PCIe Gen3 x2 NVMe v1.3',
           connector: data['txtConnector'],
           dimensions: dimensions && {
             height: dimensions[0],
             width: dimensions[1],
             depth: dimensions[2],
           },
-          readVelocity: Number(data['txtSequentialRead']?.match(/\d+/)[0]),
-          writeVelocity: Number(data['txtSequentialWrite']?.match(/\d+/)[0]),
+          readVelocity:
+            Number(data['txtSequentialRead']?.match(/\d+/)[0]) || null,
+          writeVelocity:
+            Number(data['txtSequentialWrite']?.match(/\d+/)[0]) || null,
           image:
             'https://www.westerndigital.com' +
             (imageInfo[code] && Object.keys(imageInfo[code])[0]),
-          url,
+          url: `${url}#${code}`,
         };
       });
       return storages.toArray<WesternDigitalStorageModel>();
