@@ -7,6 +7,9 @@ export class RamModel implements Ram {
   @Field(() => ID)
   componentId: number;
 
+  @Field({ nullable: true })
+  series: string;
+
   @Field()
   type: string;
 
@@ -24,9 +27,6 @@ export class RamModel implements Ram {
 
   @Field(() => Int)
   casLatency: number;
-
-  @Field(() => Int)
-  latency: number;
 
   @Field(() => ComponentModel)
   component?: ComponentModel;

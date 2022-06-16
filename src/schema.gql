@@ -166,7 +166,7 @@ type RamModel {
   componentId: ID!
   format: String!
   frequency: Int!
-  latency: Int!
+  series: String
   type: String!
   voltage: Float!
 }

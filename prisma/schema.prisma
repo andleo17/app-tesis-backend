@@ -87,13 +87,13 @@ model Cpu {
 
 model Ram {
   componentId Int       @id
+  series      String?
   type        String
   voltage     Float
   frequency   Int
   capacity    Int
   format      String
   casLatency  Int
-  latency     Int
   component   Component @relation(fields: [componentId], references: [id])
 }
 
