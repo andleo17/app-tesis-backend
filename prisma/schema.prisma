@@ -137,19 +137,13 @@ model Gpu {
 }
 
 model PowerSupply {
-  componentId    Int       @id
-  potency        Int
-  efficiency     String
-  isModular      Boolean
-  inVoltage      Int
-  frequency      Int
-  format         String
-  outVoltage     Int
-  connectorsATX  Int
-  connectorsSATA Int
-  connectorsPCIe Int
-  connectorsEPS  Int
-  component      Component @relation(fields: [componentId], references: [id])
+  componentId Int       @id
+  power       Int
+  efficiency  String
+  modularity  Int
+  frequency   Int
+  formFactor  String
+  component   Component @relation(fields: [componentId], references: [id])
 }
 
 model Storage {

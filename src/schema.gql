@@ -105,17 +105,11 @@ type Mutation {
 type PowerSuplyModel {
   component: ComponentModel!
   componentId: ID!
-  connectorsATX: Int!
-  connectorsEPS: Int!
-  connectorsPCIe: Int!
-  connectorsSATA: Int!
   efficiency: String!
-  format: String!
+  formFactor: String!
   frequency: Int!
-  inVoltage: Int!
-  isModular: Boolean!
-  outVoltage: Int!
-  potency: Int!
+  modularity: Int!
+  power: Int!
 }
 
 type Query {

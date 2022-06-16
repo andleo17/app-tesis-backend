@@ -8,37 +8,19 @@ export class PowerSuplyModel implements PowerSupply {
   componentId: number;
 
   @Field(() => Int)
-  potency: number;
+  power: number;
 
   @Field()
   efficiency: string;
 
-  @Field()
-  isModular: boolean;
-
   @Field(() => Int)
-  inVoltage: number;
+  modularity: number;
 
   @Field(() => Int)
   frequency: number;
 
   @Field()
-  format: string;
-
-  @Field(() => Int)
-  outVoltage: number;
-
-  @Field(() => Int)
-  connectorsATX: number;
-
-  @Field(() => Int)
-  connectorsSATA: number;
-
-  @Field(() => Int)
-  connectorsPCIe: number;
-
-  @Field(() => Int)
-  connectorsEPS: number;
+  formFactor: string;
 
   @Field(() => ComponentModel)
   component?: ComponentModel;
