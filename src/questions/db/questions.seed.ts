@@ -484,7 +484,7 @@ const questions: QuestionCategoryModel[] = [
         label: 'construction-activities',
         content:
           '¿Qué actividades con respecto a la construcción civil realizas en la computadora?',
-        isMultipleChoice: false,
+        isMultipleChoice: true,
         questionCategoryId: 7,
         options: [
           {

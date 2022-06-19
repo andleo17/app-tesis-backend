@@ -1,5 +1,5 @@
 import { Prisma, PrismaClient } from '@prisma/client';
-import questions from '../src/questions/seed/questions.seed';
+import questions from '../src/questions/db/questions.seed';
 const prisma = new PrismaClient();
 
 async function main() {
