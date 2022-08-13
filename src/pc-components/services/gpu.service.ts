@@ -9,7 +9,7 @@ export class GpuService {
   async getGpu(where: Prisma.GpuWhereUniqueInput): Promise<Gpu> {
     return this.prisma.gpu.findUnique({
       where,
-      include: { component: true },
+      include: { component: { include: { type: true } } },
     });
   }
 

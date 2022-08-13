@@ -9,7 +9,7 @@ export class RamService {
   async getRam(where: Prisma.RamWhereUniqueInput): Promise<Ram> {
     return this.prisma.ram.findUnique({
       where,
-      include: { component: true },
+      include: { component: { include: { type: true } } },
     });
   }
 

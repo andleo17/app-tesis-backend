@@ -9,7 +9,7 @@ export class CpuService {
   async getCpu(where: Prisma.CpuWhereUniqueInput): Promise<Cpu> {
     return this.prisma.cpu.findUnique({
       where,
-      include: { component: true },
+      include: { component: { include: { type: true } } },
     });
   }
 

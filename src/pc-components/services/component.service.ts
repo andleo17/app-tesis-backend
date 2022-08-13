@@ -15,7 +15,15 @@ export class ComponentsService {
   async getComponent(id: number): Promise<Component & { type: ComponentType }> {
     return this.prisma.component.findUnique({
       where: { id },
-      include: { type: true },
+      include: {
+        type: true,
+        cpu: true,
+        gpu: true,
+        motherboard: true,
+        powerSupply: true,
+        ram: true,
+        storage: true,
+      },
     });
   }
 

@@ -9,7 +9,7 @@ export class StorageService {
   async getStorage(where: Prisma.StorageWhereUniqueInput): Promise<Storage> {
     return this.prisma.storage.findUnique({
       where,
-      include: { component: true },
+      include: { component: { include: { type: true } } },
     });
   }
 

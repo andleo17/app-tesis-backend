@@ -27,33 +27,33 @@ export class RecommendationService {
 
     const userMoney = userAnswers.shift().answer;
 
-    const userTechnicalSpecifications =
-      this.getTechnicalSpecifications(userAnswers);
+    // const userTechnicalSpecifications =
+    //   this.getTechnicalSpecifications(userAnswers);
 
-    const minimumRequirements = this.getMinimumRequirements(
-      userTechnicalSpecifications,
-    );
+    // const minimumRequirements = this.getMinimumRequirements(
+    //   userTechnicalSpecifications,
+    // );
 
-    const cpu = await this.getCpu(minimumRequirements.cpu);
-    const motherboard = await this.getMotherboard(
-      minimumRequirements.motherboard,
-      cpu,
-    );
-    const gpu = await this.getGpu(minimumRequirements.gpu);
-    const ram = await this.getRam(minimumRequirements.ram);
-    const storages = await this.getStorages(minimumRequirements.storage);
-    const powerSupply = await this.getPowerSupply(
-      minimumRequirements.powerSupply,
-    );
+    // const cpu = await this.getCpu(minimumRequirements.cpu);
+    // const motherboard = await this.getMotherboard(
+    //   minimumRequirements.motherboard,
+    //   cpu,
+    // );
+    // const gpu = await this.getGpu(minimumRequirements.gpu);
+    // const ram = await this.getRam(minimumRequirements.ram);
+    // const storages = await this.getStorages(minimumRequirements.storage);
+    // const powerSupply = await this.getPowerSupply(
+    //   minimumRequirements.powerSupply,
+    // );
 
-    return [
-      cpu.component,
-      motherboard.component,
-      gpu.component,
-      ram.component,
-      powerSupply.component,
-      ...storages.map((a) => a.component),
-    ];
+    // return [
+    //   cpu.component,
+    //   motherboard.component,
+    //   gpu.component,
+    //   ram.component,
+    //   powerSupply.component,
+    //   ...storages.map((a) => a.component),
+    // ];
 
     // Mock response
     const componentsId = await this.prisma.$transaction([

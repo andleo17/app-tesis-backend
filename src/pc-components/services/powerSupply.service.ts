@@ -11,7 +11,7 @@ export class PowerSupplyService {
   ): Promise<PowerSupply> {
     return this.prisma.powerSupply.findUnique({
       where,
-      include: { component: true },
+      include: { component: { include: { type: true } } },
     });
   }
 

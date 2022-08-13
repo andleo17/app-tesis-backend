@@ -11,7 +11,7 @@ export class MotherboardService {
   ): Promise<Motherboard> {
     return this.prisma.motherboard.findUnique({
       where,
-      include: { component: true },
+      include: { component: { include: { type: true } } },
     });
   }
 

@@ -4,12 +4,18 @@
 
 type ComponentModel {
   brand: String!
+  cpu: CpuModel
   deltronId: String
   frabricId: String!
+  gpu: GpuModel
   id: ID!
   image: String
   model: String!
+  motherboard: MotherboardModel
+  powerSupply: PowerSuplyModel
+  ram: RamModel
   rgb: Boolean!
+  storage: StorageModel
   suggestedPrice: Float
   type: ComponentTypeModel!
   typeId: Int!
